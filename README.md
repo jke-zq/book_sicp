@@ -1,3 +1,6 @@
 # book_sicp
 
-sicp exercise when I'm reading.
+do sicp exercise when I'm reading.
+
+
+
