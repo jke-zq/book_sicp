@@ -1,4 +1,6 @@
 #lang racket
+(provide fixed-point)
+(provide average-damp)
 
 (define tolerance 0.00001)
 (define (fixed-point f guess)
