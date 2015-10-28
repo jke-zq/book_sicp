@@ -1,4 +1,5 @@
 #lang racket
+(provide gcd)
 (define (cube x) (* x x x))
 
 (define (sum term a next b)
