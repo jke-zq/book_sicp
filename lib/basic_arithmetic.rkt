@@ -2,7 +2,7 @@
 ;;common lib
 (provide (all-defined-out))
 
-
+(define nil '())
 (define (even? x)
   (= 0 (remainder x 2)))
 
