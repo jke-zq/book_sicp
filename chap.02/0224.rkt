@@ -105,6 +105,7 @@
   (iter tree nil))
 
 ;;0229
+;;0229.a
 (define (make-mobile left right)
   (list left right))
 (define (make-branch length structure)
@@ -129,6 +130,7 @@
   (branch-structure (right-branch mobile)))
 
 ;;total-weight
+;;0229.b
 (define (total-weight mobile)
   (define (iter wei result)
     (if (not (pair? wei))
@@ -159,6 +161,7 @@
      (branch-wei (right-branch mobile))))
 
 ;;solution one;balanced
+;;0229.c
 (define (balanced? mobile)
   (let ((left (left-branch mobile))
         (right (right-branch mobile)))
@@ -197,3 +200,21 @@
     (if (pair? s)
         (check-mobile s)
         s)))
+;;use cons instead of list
+;;;;0229.d
+(define (make-mobile-cons left right)
+  (cons left right))
+(define (make-branch-cons length structure)
+  (cons length structure))
+(define (left-branch-cons mobile)
+  (car mobile))
+(define (right-branch-cons mobile)
+  (cdr mobile))
+(define (branch-length-cons branch)
+  (if (null? branch)
+      0
+      (car branch)))
+(define (branch-structure-cons branch)
+  (if (null? branch)
+      0
+      (cdr branch)))
