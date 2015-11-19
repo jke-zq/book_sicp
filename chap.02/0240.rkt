@@ -75,3 +75,56 @@
                  (enumerate-interval 1 board-size)))
           (queen-cols (- k 1))))))
   (queen-cols board-size))
+
+(define empty-board nil)
+
+#|
+(define (adjoin-position new-row k rest-of-queens)
+  ;(display rest-of-queens)
+  (append rest-of-queens (list (cons k new-row))))
+
+(define (safe? k position)
+  (define (check k_col left ret)
+       (if (or (not ret) (null? left))
+           ret
+           (let ((row (car (car left)))
+                 (diff (abs (- k_col (cdr (car left))))))
+             (cond ((= k row) #t)
+                   ((or (= 0 diff) (= (- k row) diff)) #f)
+                   (else (check k_col (cdr left) #t))))))
+  (let ((k_col (cdr (car (filter (lambda (x) (= k (car x))) position)))))
+    (check k_col position #t)))
+|#
+;;more simpler solution, using index of list to present the row number
+(define (adjoin-position new-row k rest-of-queens)
+  (append rest-of-queens (list new-row)))
+
+;;reverse the position to be easy to check
+(define (safe? k positions)
+  (define (do-check k-col offset left)
+    (if (null? left)
+        #t
+        (let ((diff (abs (- k-col (car left)))))
+          (if (or (= 0 diff) (= offset diff))
+              #f
+              (do-check k-col (+ 1 offset) (cdr left))))))
+  (let ((rev-positions (reverse positions)))
+    (do-check (car rev-positions) 1 (cdr rev-positions))))
+
+    
+;;0243
+;;original
+#|
+q(n) = n * q(n - 1)
+q(n-1) = (n - 1) * q(n - 2)
+...
+q(0) = 1
+|#
+;;interchanged
+#|
+q(n) = n * n * q(n-1)
+q(n-1) = (n-1)*(n-1)*q(n-2)
+...
+q(0) = 1
+|#
+

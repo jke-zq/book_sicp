@@ -56,6 +56,12 @@
       (cons (car list1)
             (append (cdr list1) list2))))
 
+(define (reserve sequences)
+  (accumulate (lambda (first already-reserved)
+                (append already-reserved (list first)))
+              nil
+              sequences))
+
 (define (enumerate-interval low high)
   (if (> low high)
       nil
