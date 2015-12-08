@@ -4,15 +4,15 @@
   (cond ((number? exp) 0)
         ((variable? exp)
          (if (same-variable? exp var) 1 0))
-        ((sum? exp)
-         (make-sum (deriv (addend exp) var)
-                   (deriv (augend-list exp) var)))
-        ((product? exp)
+        ((gen-sum? exp)
+         (make-sum (deriv (gen-addend exp) var)
+                   (deriv (gen-augend exp) var)))
+        ((gen-product? exp)
          (make-sum
-           (make-product (multiplier exp)
-                         (deriv (multiplicand-list exp) var))
-           (make-product (deriv (multiplier exp) var)
-                         (multiplicand-list exp))))
+           (make-product (gen-multiplier exp)
+                         (deriv (gen-multiplicand exp) var))
+           (make-product (deriv (gen-multiplier exp) var)
+                         (gen-multiplicand exp))))
         (else
          (error "unknown expression type -- DERIV" exp))))
 (define (variable? x) (symbol? x))
@@ -110,6 +110,7 @@ procedure make-sum can do that.
                         (make-sum (exponent expr) -1)))                                                                                                 
   (deriv (base expr) var))) 
 |#
+
 ;;0257
 ;my solution
 (define (augend-list s)
@@ -136,6 +137,43 @@ procedure make-sum can do that.
        (caddr p) 
        (cons '* (cddr p))))
 |#
-;;0258
 
-        
+;;0258
+;;case a is the specail case of case b, so try to solve case b.
+;;(x * y * z + a + s * m * l)
+;;more from:https://github.com/jke-zq/sicp/blob/master/exercises/02/2.58.scm
+;;but I modify the 'multipier' func to 'car'
+(define (unpack-single-list origin-list)
+  (if (= (length origin-list) 1)
+      (car origin-list)
+      origin-list))
+
+(define (operation expr)
+  (if (memq '+ expr)
+      '+
+      '*))
+(define (gen-sum? expr)
+  (eq? '+ (operation expr)))
+
+(define (gen-addend expr)
+  (define (iter rest result)
+    (if (eq? (car rest) '+)
+        result
+        (iter (cdr rest) (append result (list (car rest))))))
+  (let ([result (iter expr '())])
+    (unpack-single-list result)))
+
+(define (gen-augend expr)
+  (let ([aug (cdr (memq '+ expr))])
+    (unpack-single-list aug)))
+
+(define (gen-product? expr)
+  (eq? '* (operation expr)))
+
+(define (gen-multiplier expr)
+  (car expr))
+
+(define (gen-multiplicand expr)
+  (let ([mul (cdr (memq '* expr))])
+    (unpack-single-list mul)))
+  
