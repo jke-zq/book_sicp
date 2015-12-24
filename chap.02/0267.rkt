@@ -47,7 +47,7 @@
       '()
       (let ([pair (car pairs)])
         (adjoin-set (make-leaf (car pair)
-                               (cdr pair))
+                               (cadr pair))
                     (make-leaf-set (cdr pairs))))))
   
 ;;0267
@@ -68,7 +68,7 @@
               (encode (cdr message) tree))))
 (define (element-of-set? x set)
   (cond ([null? set] false)
-        ([equal? x (car set)] true)
+        ([string-ci=? (symbol->string x) (symbol->string (car set))] true)
         (else (element-of-set? x (cdr set)))))
 #|
 ;;ugly codes
@@ -102,3 +102,13 @@
             [second (cadr leaves)])
         (successive-merge (adjoin-set (make-code-tree first second) (cddr leaves))))))
       
+;;0270
+(define rocktree (generate-huffman-tree '((A 2) (NA 16) (BOOM  1) (SHA 3) (GET 2) (YIP 9) (JOB 2) (WAH 1))))
+(define rock-song '(Get a job Sha na na na na na na na na Get a job Sha na na na na na na na na Wah yip yip yip yip yip yip yip yip yip Sha boom))
+(define encoded-rock-song (encode rock-song rocktree))
+
+;;0271
+;;1, n - 1
+
+;;0272
+;;because the least frequent symbol has the n - 1 bits, so encoding procedure will be O(n^2)
