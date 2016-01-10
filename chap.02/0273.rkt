@@ -69,3 +69,5 @@
             (find-employee-record (cdr division-list) name)
             (cons preson
                   (find-employee-record (cdr division-list) name))))))
+;;;d
+;;write the get-record and get-salary methods of the new company.
