@@ -52,3 +52,20 @@
 ;;;d 
 ;The only thing to do is changing the order of arguments in procedure "put".
 ;;for instance:(put op 'deriv item)
+
+;;0274
+;;;a
+(define (get-record division name)
+  ((get 'get-record division) name))
+;;;b
+(define (get-salary division name)
+  ((get 'get-salary division) name))
+;;;c
+(define (find-employee-record division-list name)
+  (if (null? division-list)
+      (error "cant find the name" name)
+      (let ([person (get-record (car division-list) name)])
+        (if (null? person)
+            (find-employee-record (cdr division-list) name)
+            (cons preson
+                  (find-employee-record (cdr division-list) name))))))
