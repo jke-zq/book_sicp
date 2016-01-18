@@ -23,7 +23,7 @@
 
 ;;0278
 (define (attach-tag type contents)
-  (if (eq? typ 'scheme-number)
+  (if (eq? type 'scheme-number)
       contetns
       (cons type contents)))
 
