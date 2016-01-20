@@ -103,3 +103,33 @@
         (apply proc (map contents args))
         (apply-with-coercion type-tags))))
 |#
+     
+;;0283
+(define (integer->rational integer)
+  (make-rational interger 1))
+(define (rational->real rational)
+  (define (integer->floating-point integer)
+    (* integer 1.0))
+  (make-real (/ (integer->floating-point (number rational))
+                (denom rational))))
+(define (real->complex real)
+  (make-complex-form-real-imag real 0))
+;;put
+(put-coersion 'integer 'rational integer->rational) 
+(put-coersion 'rational 'real rational->real)
+(put-coersion 'real 'complex real->complex)
+;;raise
+(define (raise number)
+  (define types '(number rational real complex))
+  (define (try val left-types)
+    (if (null? left-types)
+        val
+        (let ([next-type (car left-types)]
+              [next-types (cdr left-types)]
+              [cur-type (type-tag val)])
+          (if (eq? (type-tag val) next-type)
+              (try val next-types)
+              (try ((get-coercion cur-type next-type) val) next-types)))))
+  (try number types))
+              (try ((get-coercion 
+    
