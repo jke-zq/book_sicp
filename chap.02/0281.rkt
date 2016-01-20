@@ -119,6 +119,8 @@
 (put-coersion 'rational 'real rational->real)
 (put-coersion 'real 'complex real->complex)
 ;;raise
+#|
+;;to the top type -- complex
 (define (raise number)
   (define types '(number rational real complex))
   (define (try val left-types)
@@ -131,5 +133,12 @@
               (try val next-types)
               (try ((get-coercion cur-type next-type) val) next-types)))))
   (try number types))
-              (try ((get-coercion 
+|#
+(define (raise number)
+  (define types '(number rational real complex))
+  (define (try left-types)
+    (if (< (length left-types) 2)
+        number
+        ((get-coercion (type-tag number) (car left-types)) number)))
+  (try (member (type-tag number) types)))
     
