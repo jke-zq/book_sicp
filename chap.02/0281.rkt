@@ -134,6 +134,8 @@
               (try ((get-coercion cur-type next-type) val) next-types)))))
   (try number types))
 |#
+#|
+;;not the good codes
 (define (raise number)
   (define types '(number rational real complex))
   (define (try left-types)
@@ -141,4 +143,107 @@
         number
         ((get-coercion (type-tag number) (car left-types)) number)))
   (try (member (type-tag number) types)))
-    
+|#
+(define (raise x)     (apply-generic 'raise x))
+
+; in the integer package
+(put 'raise  '(integer) (lambda (n) (make-rational n 1)))
+
+; in the rational package
+(define (rational->real r) (make-real (/ (numer r) (denom r)))) 
+(put 'raise  '(rational) rational->real)
+
+; in the real package
+(define (real->complex r) (make-complex-from-real-imag r 0)) 
+(put 'raise  '(real) real->complex)
+
+;;0284
+(define (type-lev type)
+  (apply-generic 'type-level type))
+(define (install-level-package) 
+  (put 'level 'scheme-number 1) 
+  (put 'level 'rational 2) 
+  (put 'level 'real 3) 
+  (put 'level 'complex 4)
+  'done)
+#|
+;;there is a bug when type == null
+(define (hightest-type types)
+  (if (= (length types) 1)
+      (car types)
+      (let ([current-type (car types)]
+            [rest-hightest-type (cdr types)])
+        (if (> (type-lev current-type) (type-lev rest-hightest-type))
+            current-type
+            rest-hightest-type))))
+|#
+(define (hightest-type-lev args)
+  (if (null? types)
+      0
+      (let ([cur-lev (type-lev (car types))]
+            [rest-hightest-lev (hightest-type-lev (cdr args))])
+        (if (< cur-lev rest-hightest-lev)
+            rest-hightest-lev
+            cur-lev))))
+     
+(define (raise-to val target-type-lev)
+  (define (raise-iter arg)
+    (let ([cur-lev (type-lev arg)])
+      (cond ((= cur-lev target-type-lev) arg)
+            ((< cur-lev target-type-lev) (raise-iter (raise arg)))
+            (else "error, cant raise higher type to lower type" arg target-type-lev))))
+  (raise-iter val))
+     
+(define (apply-with-raised-types args)
+  (let ([target-type-lev (hightest-type-lev args)])
+    (apply apply-generic
+           op
+           (map (lambda(arg)
+                  (raise arg target-type-lev)))
+           args)))
+(define (apply-generic op . args)
+    (let ([type-tags (map type-tag args)])
+      (let ([proc (get op type-tags)])  
+        (if proc
+            (apply proc (map contents args))
+            (apply-with-raised-types args))))
+         
+;;0285
+(define (install-project-package) 
+   ;; internal procedures 
+   (define (complex->real x) 
+     (make-real (real-part x))) 
+   (define (real->integer x) 
+     (round x)) 
+   (define (rational->integer x) 
+     (round (/ (car x) (cdr x)))) 
+   ;; interface with system 
+   (put 'project '(complex) 
+        (lambda (x) (complex->real x))) 
+   (put 'project '(real) 
+        (lambda (x) (real->integer x))) 
+   (put 'project '(rational) 
+        (lambda (x) (rational->integer x))) 
+   'done)
+(define (project z) (appley-generic 'project z))
+(define (drop z)
+  ;;schemer-number's lev is 1
+  (if (= (type-lev z) 1)
+      z
+      (let ([projected (project z)])
+        (if (equ? projected (raise projected))
+            (drop projected)
+            z))))
+
+(define (apply-generic op . args)
+    ;;it doesn’t make sense to drop the result of all generic operations, 
+    ;;for example predicates, raise, eq?
+    (define (reduce-type val)
+      (cond ((eq? op 'sub) (drop val))
+            ((eq? op 'add) (drop val))
+            (else val)))
+    (let ([type-tags (map type-tag args)])
+      (let ([proc (get op type-tags)])  
+        (if proc
+            (apply proc (map contents args))
+            (apply-with-raised-types args)))))
